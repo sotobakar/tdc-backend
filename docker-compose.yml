@@ -1,0 +1,33 @@
+services:
+    web:
+        image: nginx:latest
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx/site.conf:/etc/nginx/conf.d/default.conf
+        networks:
+            - default
+            - web
+        depends_on:
+            - php
+        environment:
+            - VIRTUAL_HOST=tdc-backend.patricksantino.com
+            - LETSENCRYPT_HOST=tdc-backend.patricksantino.com
+    php:
+        build:
+            context: .
+            dockerfile: ./docker/php-fpm/Dockerfile
+        volumes:
+            - ./:/var/www
+        networks:
+            - default
+            - database
+        env_file:
+            - .env
+networks:
+    default:
+    web:
+        name: web
+        external: true
+    database:
+        name: database
+        external: true
