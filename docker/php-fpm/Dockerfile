@@ -37,10 +37,6 @@ WORKDIR /var/www
 
 # Copy necessary files
 COPY composer.json composer.lock ./
-COPY package.json package-lock.json ./
-
-# Install Node.js dependencies
-RUN npm install
 
 # Install PHP dependencies
 RUN composer install --prefer-dist --no-interaction --no-scripts --no-autoloader \
@@ -52,17 +48,11 @@ COPY . .
 # Generate autoload files
 RUN composer dump-autoload --classmap-authoritative
 
-# Build production assets
-RUN npm run build
-
 # Set the appropriate file permissions
 RUN chown -R www-data:www-data /var/www/storage && \
   chown -R www-data:www-data /var/www/bootstrap/cache && \
   chmod -R 775 /var/www/storage && \
   chmod -R 775 /var/www/bootstrap/cache
-
-# Link PHP Storage
-RUN php artisan storage:link
 
 # Expose port 9000 for PHP-FPM
 EXPOSE 9000
